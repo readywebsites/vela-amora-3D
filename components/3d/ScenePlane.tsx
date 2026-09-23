@@ -9,11 +9,17 @@ const loadingPromises = new Map<string, Promise<THREE.Texture>>();
 
 export function preloadTexture(src: string): Promise<THREE.Texture> {
   if (!src) return Promise.reject(new Error("No src provided"));
-  if (textureCache.has(src)) return Promise.resolve(textureCache.get(src)!);
-  if (loadingPromises.has(src)) return loadingPromises.get(src)!;
+  if (textureCache.has(src)) {
+    return Promise.resolve(textureCache.get(src)!);
+  }
 
-  const promise = new Promise<THREE.Texture>((resolve) => {
+  if (loadingPromises.has(src)) {
+    return loadingPromises.get(src)!;
+  }
+
+  const promise = new Promise<THREE.Texture>((resolve, reject) => {
     const loader = new THREE.TextureLoader();
+
     loader.load(
       src,
       (tex) => {
@@ -22,17 +28,20 @@ export function preloadTexture(src: string): Promise<THREE.Texture> {
         tex.magFilter = THREE.LinearFilter;
         tex.generateMipmaps = true;
         tex.needsUpdate = true;
+
         textureCache.set(src, tex);
         resolve(tex);
       },
       undefined,
       (err) => {
         console.warn(`Error loading texture ${src}`, err);
+        reject(err);
       }
     );
   });
 
   loadingPromises.set(src, promise);
+
   return promise;
 }
 
@@ -67,38 +76,60 @@ export const ScenePlane = ({
 }: ScenePlaneProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+
   const [texture, setTexture] = useState<THREE.Texture | null>(
     () => textureCache.get(imageSrc) || null
   );
+
   const [aspectRatio, setAspectRatio] = useState<number>(aspect);
+
+  const updateAspectRatio = (tex: THREE.Texture) => {
+    const image = tex.image as
+      | {
+          width?: number;
+          height?: number;
+        }
+      | undefined;
+
+    if (image?.width && image?.height) {
+      setAspectRatio(image.width / image.height);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
-    if (textureCache.has(imageSrc)) {
-      const tex = textureCache.get(imageSrc)!;
-      setTexture(tex);
-      if (tex.image && tex.image.width && tex.image.height) {
-        setAspectRatio(tex.image.width / tex.image.height);
-      }
+
+    const cachedTexture = textureCache.get(imageSrc);
+
+    if (cachedTexture) {
+      setTexture(cachedTexture);
+      updateAspectRatio(cachedTexture);
+
       if (materialRef.current) {
-        materialRef.current.map = tex;
+        materialRef.current.map = cachedTexture;
         materialRef.current.needsUpdate = true;
       }
-      return;
+
+      return () => {
+        isMounted = false;
+      };
     }
 
-    preloadTexture(imageSrc).then((tex) => {
-      if (isMounted) {
+    preloadTexture(imageSrc)
+      .then((tex) => {
+        if (!isMounted) return;
+
         setTexture(tex);
-        if (tex.image && tex.image.width && tex.image.height) {
-          setAspectRatio(tex.image.width / tex.image.height);
-        }
+        updateAspectRatio(tex);
+
         if (materialRef.current) {
           materialRef.current.map = tex;
           materialRef.current.needsUpdate = true;
         }
-      }
-    });
+      })
+      .catch((error) => {
+        console.warn(`Failed to preload texture: ${imageSrc}`, error);
+      });
 
     return () => {
       isMounted = false;
@@ -121,13 +152,14 @@ export const ScenePlane = ({
 
     // Subtle gentle drift
     if (floating) {
-      meshRef.current.position.y = position[1] + Math.sin(t) * floatIntensity;
+      meshRef.current.position.y =
+        position[1] + Math.sin(t) * floatIntensity;
     }
 
-    // Distance calculation relative to camera Z
+    // Distance relative to camera Z
     const camZ = cameraZRef.current;
     const planeZ = position[2];
-    const distToCam = camZ - planeZ; // Positive when camera is in front of plane
+    const distToCam = camZ - planeZ;
 
     let targetOpacity = 0;
 
@@ -135,16 +167,21 @@ export const ScenePlane = ({
 
     if (distToCam > 0) {
       if (distToCam > fadeStartDist) {
-        // Far ahead: completely hidden to prevent overlap with previous scenes
+        // Far ahead: hidden
         targetOpacity = 0;
       } else if (distToCam > fadeFullDist) {
-        // Smoothly fade in as camera approaches
-        targetOpacity = (fadeStartDist - distToCam) / (fadeStartDist - fadeFullDist);
+        // Smooth fade-in
+        targetOpacity =
+          (fadeStartDist - distToCam) /
+          (fadeStartDist - fadeFullDist);
       } else if (distToCam < 2.2 && fadeOutBehind) {
-        // Smooth fade out as camera passes through
-        targetOpacity = Math.max(0, (distToCam - 0.4) / 1.8);
+        // Smooth fade-out after camera passes
+        targetOpacity = Math.max(
+          0,
+          (distToCam - 0.4) / 1.8
+        );
       } else {
-        // Primary focused viewing range: fully visible clean image
+        // Main viewing range
         targetOpacity = 1;
       }
     } else {
@@ -152,22 +189,31 @@ export const ScenePlane = ({
       targetOpacity = 0;
     }
 
-    // Smooth opacity transition
+    // Smooth opacity
     materialRef.current.opacity = THREE.MathUtils.lerp(
       materialRef.current.opacity,
       targetOpacity,
       0.2
     );
 
-    // Prevent rendering when completely invisible or when texture has not loaded
-    meshRef.current.visible = Boolean(texture && materialRef.current.opacity > 0.005);
+    // Hide completely invisible planes
+    meshRef.current.visible = Boolean(
+      texture && materialRef.current.opacity > 0.005
+    );
   });
 
   return (
-    <group position={position} rotation={rotation} scale={scale}>
-      {/* Clean, centered main 3D image plane */}
-      <mesh ref={meshRef} visible={Boolean(texture)}>
+    <group
+      position={position}
+      rotation={rotation}
+      scale={scale}
+    >
+      <mesh
+        ref={meshRef}
+        visible={Boolean(texture)}
+      >
         <planeGeometry args={[width, height]} />
+
         <meshBasicMaterial
           ref={materialRef}
           map={texture || undefined}
