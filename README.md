@@ -47,30 +47,22 @@ Here is the folder structure of this app.
 ```bash
 modern-portfolio/
   |- app/
-    |-- about/
-    |-- api/
     |-- contact/
-    |-- services/
-    |-- testimonials/
     |-- work/
     |-- globals.css
     |-- layout.tsx
     |-- page.tsx
     |-- template.tsx
   |- components/
-    |-- Avatar.tsx
-    |-- Bulb.tsx
-    |-- Circles.tsx
+    |-- 3d/
     |-- Header.tsx
     |-- Nav.tsx
-    |-- ParticlesContainer.tsx
-    |-- ProjectsBtn.tsx
-    |-- ServiceSlider.tsx
     |-- Socials.tsx
-    |-- TestimonialSlider.tsx
     |-- TopLeftImg.tsx
     |-- Transition.tsx
     |-- WorkSlider.tsx
+  |- config/
+    |-- homeConfig.ts
   |- lib/
     |-- contact.ts
   |- public/
@@ -81,9 +73,8 @@ modern-portfolio/
   |- eslint.config.mjs
   |- netlify.toml
   |- next.config.ts
+  |- package-lock.json
   |- package.json
-  |- pnpm-lock.yaml
-  |- pnpm-workspace.yaml
   |- postcss.config.mjs
   |- tsconfig.json
   |- variants.ts
@@ -181,15 +172,22 @@ You might encounter some bugs while using this app. You are more than welcome to
 Useful resources and dependencies that are used in Modern Portfolio.
 
 <!--- DEPENDENCIES_START --->
+- [@react-three/drei](https://www.npmjs.com/package/@react-three/drei): ^10.7.8
+- [@react-three/fiber](https://www.npmjs.com/package/@react-three/fiber): ^9.7.0
 - [@tailwindcss/postcss](https://www.npmjs.com/package/@tailwindcss/postcss): ^4.3.3
 - [@tsparticles/engine](https://www.npmjs.com/package/@tsparticles/engine): ^4.3.2
 - [@tsparticles/react](https://www.npmjs.com/package/@tsparticles/react): ^4.3.2
 - [@types/node](https://www.npmjs.com/package/@types/node): ^26.4.1
 - [@types/react](https://www.npmjs.com/package/@types/react): ^19.2.18
 - [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.2.7
+- [@types/three](https://www.npmjs.com/package/@types/three): ^0.186.0
 - [eslint](https://www.npmjs.com/package/eslint): ^9.39.5
 - [eslint-config-next](https://www.npmjs.com/package/eslint-config-next): 16.3.4
-- [framer-motion](https://www.npmjs.com/package/framer-motion): ^13.2.0
+- [framer-motion](https://www.npmjs.com/package/framer-motion): ^13.3.0
+- [gsap](https://www.npmjs.com/package/gsap): ^3.15.0
+- [lightningcss](https://www.npmjs.com/package/lightningcss): ^1.33.0
+- [lightningcss-win32-x64-msvc](https://www.npmjs.com/package/lightningcss-win32-x64-msvc): ^1.33.0
+- [motion-dom](https://www.npmjs.com/package/motion-dom): ^13.3.0
 - [next](https://www.npmjs.com/package/next): 16.3.4
 - [postcss](https://www.npmjs.com/package/postcss): ^8.5.28
 - [react](https://www.npmjs.com/package/react): 19.2.8
@@ -201,6 +199,7 @@ Useful resources and dependencies that are used in Modern Portfolio.
 - [resend](https://www.npmjs.com/package/resend): ^6.26.0
 - [swiper](https://www.npmjs.com/package/swiper): ^14.2.0
 - [tailwindcss](https://www.npmjs.com/package/tailwindcss): ^4.3.3
+- [three](https://www.npmjs.com/package/three): ^0.186.0
 - [tsparticles](https://www.npmjs.com/package/tsparticles): ^4.3.2
 - [typescript](https://www.npmjs.com/package/typescript): ^6.0.3
 
