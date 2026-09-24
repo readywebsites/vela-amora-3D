@@ -138,9 +138,9 @@ export const UIOverlay = ({
   }, [activeSceneIndex]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-20 flex flex-col justify-between select-none overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-30 flex flex-col justify-between select-none overflow-hidden">
       {/* Top-Left Persistent VELA ARMON Logo */}
-      <div className="fixed top-5 sm:top-6 md:top-8 left-5 sm:left-6 md:left-9 lg:left-10 z-30 pointer-events-auto">
+      <div className="fixed top-[18px] sm:top-[24px] md:top-[30px] left-[18px] sm:left-[25px] md:left-[40px] z-50 pointer-events-auto">
         <a
           href="#"
           onClick={(e) => {
@@ -153,10 +153,10 @@ export const UIOverlay = ({
           <Image
             src="/assets/images/vela-armon-logo.png"
             alt="Vela Armon"
-            width={180}
-            height={45}
+            width={170}
+            height={42}
             priority
-            className="w-[115px] sm:w-[145px] md:w-[175px] h-auto object-contain drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]"
+            className="w-[115px] sm:w-[145px] md:w-[170px] h-auto object-contain"
           />
         </a>
       </div>
