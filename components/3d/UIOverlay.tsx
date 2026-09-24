@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { HOME_CONFIG } from "@/config/homeConfig";
 
 interface UIOverlayProps {
@@ -138,6 +139,28 @@ export const UIOverlay = ({
 
   return (
     <div className="fixed inset-0 pointer-events-none z-20 flex flex-col justify-between select-none overflow-hidden">
+      {/* Top-Left Persistent VELA ARMON Logo */}
+      <div className="fixed top-5 sm:top-6 md:top-8 left-5 sm:left-6 md:left-9 lg:left-10 z-30 pointer-events-auto">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          aria-label="Vela Armon"
+          className="block transition-opacity duration-300 hover:opacity-80 focus:outline-none select-none"
+        >
+          <Image
+            src="/assets/images/vela-armon-logo.png"
+            alt="Vela Armon"
+            width={180}
+            height={45}
+            priority
+            className="w-[115px] sm:w-[145px] md:w-[175px] h-auto object-contain drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]"
+          />
+        </a>
+      </div>
+
       {/* Top-Right Minimal Premium Sound Control */}
       <div className="fixed top-7 md:top-8 right-6 md:right-12 z-30 pointer-events-auto">
         <button
